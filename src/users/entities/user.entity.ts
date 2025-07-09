@@ -11,7 +11,7 @@ export class User {
   id: number;
 
   @Column({ length: 150 })
-  nombre: string;
+  name: string;
 
   @Column()
   password: string;

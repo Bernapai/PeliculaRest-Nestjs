@@ -10,7 +10,7 @@ export class CreateUserDto {
     })
     @IsString()
     @IsNotEmpty()
-    nombre: string;
+    name: string;
 
     @ApiProperty({
         description: 'Contraseña del usuario (mínimo 6 caracteres)',

@@ -29,8 +29,8 @@ export class UsersService {
     }
 
     // Obtener un usuario por nombre
-    async findByName(nombre: string): Promise<User | null> {
-        return await this.userRepository.findOne({ where: { nombre } });
+    async findByName(name: string): Promise<User | null> {
+        return await this.userRepository.findOne({ where: { name } });
     }
 
     // Actualizar un usuario por ID

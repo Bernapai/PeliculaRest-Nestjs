@@ -1,17 +1,26 @@
 import { DataSource } from 'typeorm';
-import { Usuario, UserRole } from 'src/users/entities/user.entity';
-import { Pelicula } from 'src/movies/entities/movie.entity';
+import { User, UserRole } from '../../users/entities/user.entity';
+import { Pelicula } from '../../movies/entities/movie.entity';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from '../../app.module';
+
 
 async function seed() {
+  // 0. Crear Nuevo Contexto y Llamar al Servicio
+  const app = await NestFactory.createApplicationContext(AppModule);
+  const configService = app.get(ConfigService);
+
+
   // 1. Crear una conexión a la base de datos (DataSource)
   const dataSource = new DataSource({
     type: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    username: process.env.DB_USERNAME || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'moviesDB',
-    entities: [Pelicula, Usuario],
+    host: configService.get<string>('DB_HOST'),
+    port: configService.get<number>('DB_PORT'),
+    username: configService.get<string>('DB_USERNAME'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_NAME'),
+    entities: [Pelicula, User],
     synchronize: true,
   });
 
@@ -20,7 +29,7 @@ async function seed() {
 
   // 3. Obtener los repositorios para cada entidad (tablas)
   const peliculaRepo = dataSource.getRepository(Pelicula);
-  const usuarioRepo = dataSource.getRepository(Usuario);
+  const usuarioRepo = dataSource.getRepository(User);
 
   // 4. Crear instancias de las entidades (datos nuevos)
   const pelicula1 = peliculaRepo.create({
@@ -41,13 +50,13 @@ async function seed() {
 
   // 5. Lo mismo con usuarios
   const adminUser = usuarioRepo.create({
-    nombre: 'Admin',
+    name: 'Admin',
     password: 'password',
     role: UserRole.ADMIN,
   });
 
   const normalUser = usuarioRepo.create({
-    nombre: 'User',
+    name: 'User',
     password: 'hashedpassword',
     role: UserRole.USER,
   });
@@ -58,8 +67,9 @@ async function seed() {
 
   // 7. Cerrar la conexión cuando terminás
   await dataSource.destroy();
+  await app.close(); //  Cerrar el contexto Nest
 
-  console.log('Seed finalizado');
+  console.log('Seed finalizado con éxito');
 }
 
 // Ejecutar la función y atrapar errores

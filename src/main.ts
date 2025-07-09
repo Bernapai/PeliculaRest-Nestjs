@@ -1,41 +1,31 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { setupSwagger, logSwaggerUrl } from './common/swagger.config';
+import { GlobalValidationPipe } from './common/pipes/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Configurar ValidationPipe global
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true, // Elimina propiedades no definidas en el DTO
-      forbidNonWhitelisted: true, // Lanza error si hay propiedades extra
-      transform: true, // Transforma payloads a instancias de clases
-    }),
-  );
+  const configService = app.get(ConfigService);
+  const validationPipe = app.get(GlobalValidationPipe);
 
-  // Configuración de Swagger
-  const config = new DocumentBuilder()
-    .setTitle('API Películas')
-    .setDescription('API para gestión de películas')
-    .setVersion('1.0')
-    .addBearerAuth() // Si usás JWT Bearer auth
-    .build();
+  // Configurar pipe global
+  app.useGlobalPipes(validationPipe);
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  // Configurar Swagger
+  setupSwagger(app);
 
-  // Escuchar puerto desde .env o 3000 por defecto
-  await app.listen(process.env.PORT || 3000);
+  // Obtener puerto desde configuración
+  const port = configService.get<number>('PORT', 3000);
 
-  console.log(`Server running on http://localhost:${process.env.PORT || 3000}`);
-  console.log(
-    `Swagger docs available on http://localhost:${process.env.PORT || 3000}/api-docs`,
-  );
+  await app.listen(port);
+
+  console.log(`Server running on http://localhost:${port}`);
+  logSwaggerUrl(port);
 }
 
 bootstrap().catch((err) => {
   console.error('Error during bootstrap:', err);
+  process.exit(1);
 });
