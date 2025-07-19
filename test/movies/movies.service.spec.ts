@@ -34,6 +34,7 @@ describe('MoviesService', () => {
   const mockRepository = {
     find: jest.fn(),
     findOne: jest.fn(),
+    findOneBy: jest.fn(), // AGREGADO: Este era el método que faltaba
     create: jest.fn(),
     save: jest.fn(),
     update: jest.fn(),
@@ -75,21 +76,20 @@ describe('MoviesService', () => {
 
   describe('findOne', () => {
     it('should return a movie when found', async () => {
-      mockRepository.findOne.mockResolvedValue(mockMovie);
+      mockRepository.findOneBy.mockResolvedValue(mockMovie); // CAMBIADO: usar findOneBy
       const result = await service.findOne(1);
       expect(result).toEqual(mockMovie);
-      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 }); // CAMBIADO: verificar findOneBy
     });
 
-    it('should return null when movie not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-      const result = await service.findOne(999);
-      expect(result).toBeNull();
+    it('should throw error when movie not found', async () => {
+      mockRepository.findOneBy.mockResolvedValue(null); // CAMBIADO: usar findOneBy
+      await expect(service.findOne(999)).rejects.toThrow('Pelicula No encontradda'); // CAMBIADO: tu servicio lanza error, no retorna null
     });
 
     it('should throw error on DB failure', async () => {
       const error = new Error('Query failed');
-      mockRepository.findOne.mockRejectedValue(error);
+      mockRepository.findOneBy.mockRejectedValue(error); // CAMBIADO: usar findOneBy
       await expect(service.findOne(1)).rejects.toThrow(error);
     });
   });
@@ -134,19 +134,18 @@ describe('MoviesService', () => {
       const updateResult: UpdateResult = { affected: 1, raw: [], generatedMaps: [] };
 
       mockRepository.update.mockResolvedValue(updateResult);
-      mockRepository.findOne.mockResolvedValue(updatedMovie);
+      mockRepository.findOneBy.mockResolvedValue(updatedMovie); // CAMBIADO: usar findOneBy
 
       const result = await service.update(1, updateDto);
       expect(result).toEqual(updatedMovie);
     });
 
-    it('should return null if update affects no rows', async () => {
-      const updateResult: UpdateResult = { affected: 0, raw: [], generatedMaps: [] };
+    it('should throw error if movie not found after update', async () => {
+      const updateResult: UpdateResult = { affected: 1, raw: [], generatedMaps: [] };
       mockRepository.update.mockResolvedValue(updateResult);
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.findOneBy.mockResolvedValue(null); // CAMBIADO: usar findOneBy
 
-      const result = await service.update(999, updateDto);
-      expect(result).toBeNull();
+      await expect(service.update(999, updateDto)).rejects.toThrow('Pelicula with id 999 not found'); // CAMBIADO: tu servicio lanza error
     });
 
     it('should throw error if update fails', async () => {

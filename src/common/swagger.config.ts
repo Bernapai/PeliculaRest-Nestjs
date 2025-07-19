@@ -7,8 +7,8 @@ export function setupSwagger(app: INestApplication): void {
         .setDescription('API para gestión de películas')
         .setVersion('1.0')
         .addBearerAuth()
-        .addTag('movies', 'Operaciones con películas')
-        .addTag('users', 'Operaciones con usuarios')
+        .addTag('Peliculas', 'Operaciones con películas')
+        .addTag('Users', 'Operaciones con usuarios')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
