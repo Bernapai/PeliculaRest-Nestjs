@@ -1,7 +1,7 @@
 // dtos/authResponse.dto.ts
 import { IsString, IsNotEmpty, ValidateNested, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 export class AuthResponse {
     @IsString({ message: 'El token debe ser una cadena de texto' })

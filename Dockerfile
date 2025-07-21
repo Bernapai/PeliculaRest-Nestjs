@@ -4,7 +4,7 @@ FROM node:18.17-alpine
 # Carpeta de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiamos solo package.json y package-lock.json para aprovechar cache
+
 COPY package*.json ./
 
 # Instalamos dependencias

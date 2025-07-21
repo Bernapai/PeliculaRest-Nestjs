@@ -3,7 +3,7 @@ import { loginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
 import { AuthResponse } from '../dtos/authResponse.dto';
 import { AuthService } from '../services/auth.service';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 
 @Controller('auth')
