@@ -19,7 +19,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 
-@ApiTags('peliculas') // ← Agrupa estos endpoints bajo "peliculas" en Swagger
+@ApiTags('Peliculas') // ← Agrupa estos endpoints bajo "peliculas" en Swagger
 @Controller('movies')
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) { }
